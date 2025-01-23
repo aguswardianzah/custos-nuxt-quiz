@@ -5,14 +5,17 @@ const props = defineProps<IAnswer & { index: number; questionId: string }>()
 const quizStore = useQuizStore()
 const style = computed(() => {
   if (quizStore.currentQuestion?.revealed && props.is_correct) {
-    return "border border-green-400 bg-green-400 text-white animate-[bounce_1s_2s]"
+    return "border border-green-400 bg-green-400 text-white animate-[pulse_1s]"
   } else if (props.selected) {
     return "border border-orange-400 bg-orange-400 text-white"
   } else {
     return "border border-slate-500"
   }
 })
-const _select = () => quizStore.answerQuestion(props.questionId, props.id)
+const _select = () => {
+  !quizStore.currentQuestion?.revealed &&
+    quizStore.answerQuestion(props.questionId, props.id)
+}
 </script>
 
 <template>

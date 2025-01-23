@@ -13,6 +13,7 @@ const _goNextPage = () => {
 }
 const _reveal = () =>
   quizStore.currentQuestion &&
+  !quizStore.currentQuestion.revealed &&
   quizStore.revealExp(quizStore.currentQuestion.qId)
 const _goToResult = () => useRouter().push("result")
 
@@ -35,9 +36,7 @@ onMounted(() => {
         :question-id="quizStore.currentQuestion.qId"
       />
       <button
-        v-if="
-          quizStore.currentQuestion.answers?.some((a) => a.selected) || true
-        "
+        v-if="quizStore.currentQuestion.answers?.some((a) => a.selected)"
         class="flex items-center mt-2 bg-green-300 rounded place-self-center p-2 text-sm font-semibold"
         @click="_reveal"
       >
