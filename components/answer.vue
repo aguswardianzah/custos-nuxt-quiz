@@ -1,21 +1,27 @@
 <script setup lang="ts">
-import { useQuizStore } from '~/store/quiz';
+import { useQuizStore, type IAnswer } from "~/store/quiz"
 
-const props = defineProps(['index', 'answerId', 'questionId', 'text'])
+const props = defineProps<IAnswer & { index: number; questionId: string }>()
 const quizStore = useQuizStore()
 const style = computed(() => {
-  if (quizStore.selectedAnswer === props.answerId) {
-    return 'border-2 border-orange-400 bg-orange-400 text-white'
+  if (quizStore.currentQuestion?.revealed && props.is_correct) {
+    return "border border-green-400 bg-green-400 text-white animate-[bounce_1s_2s]"
+  } else if (props.selected) {
+    return "border border-orange-400 bg-orange-400 text-white"
   } else {
-    return 'border-2 border-slate-500'
+    return "border border-slate-500"
   }
 })
-const _select = () => quizStore.answerQuestion(props.questionId, props.answerId)
+const _select = () => quizStore.answerQuestion(props.questionId, props.id)
 </script>
 
 <template>
-  <button class="w-full text-start rounded-lg my-4 flex flex-row gap-2 px-3 py-2" :class="style" @click="_select">
-    <span>{{ String.fromCharCode(65 + props.index) }}</span>
+  <button
+    class="w-full text-start rounded-lg my-3 flex flex-row gap-2 px-3 py-2"
+    :class="style"
+    @click="_select"
+  >
+    <span>{{ String.fromCharCode(65 + props.index) }}.</span>
     <div>{{ text }}</div>
   </button>
 </template>

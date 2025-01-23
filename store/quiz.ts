@@ -1,39 +1,78 @@
-import { collection } from "firebase/firestore"
+import PublicGoogleSheetsParser from "public-google-sheets-parser"
 
-export interface Answer {
-  questionId: string,
-  answerId: string
+export interface IAnswer {
+  id: string, is_correct: boolean, text: string, selected: boolean
+}
+
+export interface IQuestion {
+  qId: string
+  topic?: string
+  level?: number
+  type?: 'single_choice' | 'multi_choice'
+  question?: string
+  explanation?: string
+  revealed?: boolean
+  answers?: IAnswer[]
+}
+
+const shuffleArray = <T>(array: Array<T>): Array<T> => {
+  for (let i = array.length - 1; i >= 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array
 }
 
 export const useQuizStore = defineStore('quizStore', () => {
-  const db = useFirestore()
-  const questions = useCollection(collection(db, '/quiz'))
-  const answers = ref<Answer[]>([])
+  const questions = ref<IQuestion[]>([])
   const currentPage = ref(0)
 
-  const numOfQuestion = computed(() => questions.value.length)
-  const currentQuestion = computed(() => questions.value[currentPage.value])
-  const selectedAnswer = computed(() => answers.value.find(a => a.questionId === currentQuestion.value.qId)?.answerId)
-  const result = computed(() => {
-    const score = answers.value.map(a => {
-      const question = questions.value.find(q => q.qId === a.questionId)
-      if (question && question.answers.some((qa: { id: string, is_correct: boolean }) => qa.id === a.answerId && qa.is_correct))
-        return 1 as number
-      return 0 as number
-    }).reduce((a, b) => a + b)
-    return score / numOfQuestion.value * 100
-  })
-
-  const answerQuestion = (questionId: string, answerId: string) => {
-    if (answers.value.find(a => a.questionId === questionId)) {
-      answers.value = answers.value.map(a => ({ ...a, answerId: a.questionId === questionId ? answerId : a.answerId }))
-    } else {
-      answers.value = [...answers.value, { questionId, answerId }]
-    }
+  const fetchData = async () => {
+    const config = useRuntimeConfig()
+    const parser = new PublicGoogleSheetsParser(config.public.sheetId)
+    const parsed = await parser.parse()
+    const data = shuffleArray(parsed).slice(0, 5).map(d => ({
+      qId: d['SNO'],
+      topic: d['Topic Category'],
+      level: parseInt(d['Level']),
+      question: d['Questions'],
+      explanation: 'Explanation text',
+      revealed: false,
+      answers: shuffleArray([
+        { id: `${d['SNO']}-A1`, is_correct: true, text: d['Answer'], selected: false },
+        { id: `${d['SNO']}-A2`, is_correct: false, text: d['Misconceptions #1'], selected: false },
+        { id: `${d['SNO']}-A3`, is_correct: false, text: d['Misconceptions #2'], selected: false },
+      ])
+    } as IQuestion))
+    console.log('data', data)
+    questions.value = data
   }
 
+  const numOfQuestion = computed(() => questions.value.length)
+  const currentQuestion = computed(() => questions.value.length ? questions.value[currentPage.value] : undefined)
+
+  const answerQuestion = (questionId: string, answerId: string) => {
+    questions.value = questions.value.map(q => ({
+      ...q,
+      answers: q.qId === questionId ? q.answers?.map(a => ({
+        ...a,
+        selected: a.id === answerId
+      })) : q.answers
+    }))
+  }
   const changePage = (page: number) => { currentPage.value = page }
+  const revealExp = (qId: string) => {
+    questions.value = questions.value.map(q => ({ ...q, revealed: qId === q.qId }))
+  }
 
-
-  return { questions, currentQuestion, selectedAnswer, numOfQuestion, answers, result, currentPage, answerQuestion, changePage }
+  return {
+    questions,
+    currentQuestion,
+    numOfQuestion,
+    currentPage,
+    fetchData,
+    answerQuestion,
+    changePage,
+    revealExp
+  }
 })
