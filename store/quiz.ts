@@ -36,7 +36,7 @@ export const useQuizStore = defineStore('quizStore', () => {
       topic: d['Topic Category'],
       level: parseInt(d['Level']),
       question: d['Questions'],
-      explanation: 'Explanation text',
+      explanation: d['Explanation'],
       revealed: false,
       answers: shuffleArray([
         { id: `${d['SNO']}-A1`, is_correct: true, text: d['Answer'], selected: false },
