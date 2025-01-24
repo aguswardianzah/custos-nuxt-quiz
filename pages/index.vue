@@ -15,7 +15,9 @@ const _reveal = () =>
   quizStore.currentQuestion &&
   !quizStore.currentQuestion.revealed &&
   quizStore.revealExp(quizStore.currentQuestion.qId)
-const _goToResult = () => useRouter().push("result")
+const _finish = () => {
+  console.log('finish quiz')
+}
 
 onMounted(() => {
   quizStore.fetchData()
@@ -69,10 +71,10 @@ onMounted(() => {
     </button>
     <button
       v-else
-      @click="_goToResult"
+      @click="_finish"
       class="flex flex-row-reverse gap-2 items-center"
     >
-      <Icon name="uil:upload-alt" size="1.5em" />Finish
+      <Icon name="uil:check-circle" size="1.5em" />Finish
     </button>
   </div>
 </template>
