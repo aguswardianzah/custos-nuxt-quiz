@@ -16,7 +16,11 @@ const _reveal = () =>
   !quizStore.currentQuestion.revealed &&
   quizStore.revealExp(quizStore.currentQuestion.qId)
 const _finish = () => {
-  console.log('finish quiz')
+  if (quizStore.currentQuestion?.revealed) {
+    console.log('finish quiz')
+  } else {
+    _reveal()
+  }
 }
 
 onMounted(() => {

@@ -44,7 +44,6 @@ export const useQuizStore = defineStore('quizStore', () => {
         { id: `${d['SNO']}-A3`, is_correct: false, text: d['Misconceptions #2'], selected: false },
       ])
     } as IQuestion))
-    console.log('data', data)
     questions.value = data
   }
 
@@ -62,7 +61,7 @@ export const useQuizStore = defineStore('quizStore', () => {
   }
   const changePage = (page: number) => { currentPage.value = page }
   const revealExp = (qId: string) => {
-    questions.value = questions.value.map(q => ({ ...q, revealed: qId === q.qId }))
+    questions.value = questions.value.map(q => ({ ...q, revealed: qId === q.qId ? true : q.revealed }))
   }
 
   return {
