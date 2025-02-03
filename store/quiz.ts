@@ -29,8 +29,10 @@ export const useQuizStore = defineStore('quizStore', () => {
 
   const fetchData = async () => {
     const config = useRuntimeConfig()
+    console.log('sheed id', config.public.sheetId)
     const parser = new PublicGoogleSheetsParser(config.public.sheetId)
     const parsed = await parser.parse()
+    console.log('parsed', parsed)
     const data = shuffleArray(parsed).slice(0, 5).map(d => ({
       qId: d['SNO'],
       topic: d['Topic Category'],
@@ -56,7 +58,8 @@ export const useQuizStore = defineStore('quizStore', () => {
       answers: q.qId === questionId ? q.answers?.map(a => ({
         ...a,
         selected: a.id === answerId
-      })) : q.answers
+      })) : q.answers,
+      revealed: questionId === q.qId ? true : q.revealed
     }))
   }
   const changePage = (page: number) => { currentPage.value = page }

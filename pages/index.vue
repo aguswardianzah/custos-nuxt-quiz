@@ -7,21 +7,26 @@ const _goPrevPage = () => quizStore.changePage(quizStore.currentPage - 1)
 const _goNextPage = () => {
   if (quizStore.currentQuestion?.revealed) {
     quizStore.changePage(quizStore.currentPage + 1)
-  } else {
-    _reveal()
+    // } else {
+    //   _reveal()
   }
 }
-const _reveal = () =>
-  quizStore.currentQuestion &&
-  !quizStore.currentQuestion.revealed &&
-  quizStore.revealExp(quizStore.currentQuestion.qId)
+// const _reveal = () =>
+//   quizStore.currentQuestion &&
+//   !quizStore.currentQuestion.revealed &&
+//   quizStore.revealExp(quizStore.currentQuestion.qId)
 const _finish = () => {
   if (quizStore.currentQuestion?.revealed) {
-    console.log('finish quiz')
-  } else {
-    _reveal()
+    console.log("finish quiz")
+    // } else {
+    //   _reveal()
   }
 }
+const _isCorrect = computed(
+  () =>
+    quizStore.currentQuestion?.revealed &&
+    quizStore.currentQuestion.answers?.some((a) => a.is_correct && a.selected)
+)
 
 onMounted(() => {
   quizStore.fetchData()
@@ -41,13 +46,20 @@ onMounted(() => {
         :index
         :question-id="quizStore.currentQuestion.qId"
       />
-      <button
+      <!--button
         v-if="quizStore.currentQuestion.answers?.some((a) => a.selected)"
         class="flex items-center mt-2 bg-green-300 rounded place-self-center p-2 text-sm font-semibold"
         @click="_reveal"
       >
         <Icon name="uil:book-open" class="me-1" size="1em" />Reveal answer
-      </button>
+      </button-->
+      <div v-if="_isCorrect" class="text-center">
+        <Icon
+          name="uil:presentation-check"
+          class="text-green-500"
+          size="4em"
+        ></Icon>
+      </div>
       <div v-if="quizStore.currentQuestion.revealed" class="mt-2">
         {{ quizStore.currentQuestion.explanation }}
       </div>
