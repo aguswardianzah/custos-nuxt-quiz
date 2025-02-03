@@ -53,12 +53,8 @@ onMounted(() => {
       >
         <Icon name="uil:book-open" class="me-1" size="1em" />Reveal answer
       </button-->
-      <div v-if="_isCorrect" class="text-center">
-        <Icon
-          name="uil:presentation-check"
-          class="text-green-500"
-          size="4em"
-        ></Icon>
+      <div v-if="_isCorrect" class="flex justify-center text-center">
+        <img src="/img/congrats.jpeg" class="mt-3 w-32 animate-[ping_1s]" />
       </div>
       <div v-if="quizStore.currentQuestion.revealed" class="mt-2">
         {{ quizStore.currentQuestion.explanation }}
